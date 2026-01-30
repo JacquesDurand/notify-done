@@ -1,0 +1,32 @@
+[Unit]
+Description=notify-done eBPF Process Notification Daemon
+Documentation=https://github.com/hugo/notify-done
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/notify-done-daemon
+Restart=on-failure
+RestartSec=5
+
+# Required capabilities for eBPF
+AmbientCapabilities=CAP_BPF CAP_PERFMON CAP_SYS_ADMIN CAP_SYS_RESOURCE
+CapabilityBoundingSet=CAP_BPF CAP_PERFMON CAP_SYS_ADMIN CAP_SYS_RESOURCE
+
+# Security hardening
+NoNewPrivileges=no
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/run/user
+
+# Allow access to user D-Bus sessions
+PrivateUsers=no
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=notify-done
+
+[Install]
+WantedBy=multi-user.target

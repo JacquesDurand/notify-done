@@ -1,0 +1,21 @@
+[package]
+name = "notify-done-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aya-ebpf = { git = "https://github.com/aya-rs/aya", branch = "main" }
+notify-done-common = { path = "../notify-done-common", default-features = false }
+
+[[bin]]
+name = "notify-done-ebpf"
+path = "src/main.rs"
+
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+opt-level = 3
+debug = false
+overflow-checks = false

@@ -1,0 +1,11 @@
+[package]
+name = "notify-done-common"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+user = ["serde"]
+
+[dependencies]
+serde = { workspace = true, optional = true }

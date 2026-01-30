@@ -1,0 +1,8 @@
+[build]
+target = "bpfel-unknown-none"
+
+[unstable]
+build-std = ["core"]
+
+[env]
+CARGO_CFG_BPF_TARGET_ARCH = "x86_64"

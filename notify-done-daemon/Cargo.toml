@@ -1,0 +1,22 @@
+[package]
+name = "notify-done-daemon"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "notify-done-daemon"
+path = "src/main.rs"
+
+[dependencies]
+notify-done-common = { path = "../notify-done-common", features = ["user"] }
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+serde.workspace = true
+tokio.workspace = true
+toml.workspace = true
+thiserror.workspace = true
+aya = { git = "https://github.com/aya-rs/aya", branch = "main" }
+bytes = "1"
+dirs = "5"
+libc = "0.2"

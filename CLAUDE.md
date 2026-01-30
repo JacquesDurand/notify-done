@@ -1,24 +1,57 @@
 # notify-done
 
-A Rust CLI that notifies you when long-running tasks complete.
+A system-wide process notification daemon using eBPF.
 
 ## Architecture
 
-- **Wrapper-first**: `nd -- <command>` runs command and notifies on completion
-- **Optional daemon**: For tracking multiple tasks and history
+- **eBPF-based**: Uses kernel tracepoints to monitor process execution system-wide
+- **Root daemon**: Runs as systemd service with eBPF capabilities
+- **User notifications**: Discovers user D-Bus sessions to send notifications
+
+## Project Structure
+
+```
+notify-done/
+├── xtask/                    # Build tooling (cargo xtask)
+├── notify-done-ebpf/         # eBPF programs (no_std)
+├── notify-done-common/       # Shared types between eBPF and userspace
+├── notify-done-daemon/       # Root systemd daemon
+├── nd/                       # CLI tool
+└── systemd/                  # Service file
+```
 
 ## Key Files
 
-- `src/cli/args.rs` - Clap argument definitions
-- `src/executor/runner.rs` - Command execution with signal forwarding
-- `src/notification/builder.rs` - Desktop notification via notify-rust
-- `src/daemon/server.rs` - Tokio Unix socket server
-- `src/config/schema.rs` - Configuration structure
+- `notify-done-ebpf/src/main.rs` - eBPF tracepoint handlers
+- `notify-done-common/src/lib.rs` - Shared event structs
+- `notify-done-daemon/src/main.rs` - Daemon entry point
+- `notify-done-daemon/src/ebpf_loader.rs` - eBPF program loading
+- `notify-done-daemon/src/process_tracker.rs` - Process state tracking
+- `notify-done-daemon/src/notifier.rs` - D-Bus notification sending
+- `nd/src/main.rs` - CLI commands
 
 ## Commands
 
-nd --            # Run and notify
-nd -t 30 --      # Only notify if > 30s
-nd config --init          # Create config file
-nd daemon start/stop      # Manage daemon
-nd list / nd history      # View tasks (daemon mode)
+```bash
+# Build
+cargo xtask build-ebpf     # Build eBPF programs
+cargo xtask build          # Build everything
+
+# CLI
+nd status                  # Show daemon status
+nd list                    # List tracked processes
+nd history                 # Show notification history
+nd config show/init        # Manage configuration
+nd test                    # Send test notification
+nd run -- <command>        # Wrapper mode (explicit tracking)
+
+# Service
+sudo systemctl start notify-done
+journalctl -u notify-done -f
+```
+
+## Requirements
+
+- Linux kernel 5.8+ (ring buffer support)
+- Rust nightly (for eBPF build)
+- Root privileges for daemon
